@@ -1,15 +1,18 @@
 ---
 name: orchestration
-description: "Codex-native architect and delegation workflow that uses separately installed, role-pinned custom agents: GPT-5.6 Luna at max reasoning for routine implementation, GPT-5.6 Terra at max reasoning for harder implementation, and a fresh GPT-5.6 Sol reviewer at high reasoning with a requested read-only profile. Use for delegated implementation, multi-task builds, feature work, bug fixes, refactors, lane selection, five-part implementation specs, verification of subagent work, commitment-boundary advice, or any deliverable that must receive a final independent-context Sol review before completion."
+description: "Codex-native architect and delegation workflow for Sol Advisor, also known as Astra Advisor, that uses separately installed, role-pinned custom agents: GPT-5.6 Luna at max reasoning for routine implementation, GPT-5.6 Terra at max reasoning for harder implementation, and a fresh GPT-6 Astra reviewer at high reasoning with a requested read-only profile. Use for delegated implementation, multi-task builds, feature work, bug fixes, refactors, lane selection, five-part implementation specs, verification of subagent work, commitment-boundary advice, or any deliverable that must receive a final independent-context Astra review before completion."
 ---
 
 # Sol Advisor Orchestration
 
+Sol Advisor is also known as Astra Advisor. Both names refer to this workflow.
+
 Act as the architect. Own the user's intent, architecture, decomposition, routing,
 verification, and final acceptance. Delegate implementation volume to the least
-expensive adequate lane, then obtain a fresh Sol verdict before reporting a deliverable
-complete. The implementation and reviewer lanes are native Codex custom-agent threads,
-not a nested Codex CLI wrapper or a global default-subagent setting.
+expensive adequate lane, then obtain a fresh Astra verdict before reporting a
+deliverable complete. The implementation and reviewer lanes are native Codex
+custom-agent threads, not a nested Codex CLI wrapper or a global default-subagent
+setting.
 
 Read [references/role-contracts.md](references/role-contracts.md) before the first
 delegation in a session. It defines the required implementation spec, reports, and
@@ -17,10 +20,10 @@ review packet.
 
 ## Confirm the primary session
 
-Run the primary Codex session on gpt-5.6-sol with high reasoning. Verify the current
+Run the primary Codex session on gpt-6-astra with high reasoning. Verify the current
 model and effort when the runtime exposes them. If either setting differs, tell the
-user how to select Sol / High and stop before delegation. If the runtime does not
-expose the settings, ask the user to confirm that Sol / High is selected and stop
+user how to select Astra / High and stop before delegation. If the runtime does not
+expose the settings, ask the user to confirm that Astra / High is selected and stop
 until they confirm. A skill cannot change the primary session's model itself; never
 assume or claim that this prerequisite is satisfied.
 
@@ -55,7 +58,7 @@ Before every delegation, complete steps 1–2. After spawning a lane, complete s
 
    - sol_advisor_luna_implementer
    - sol_advisor_terra_implementer
-   - sol_advisor_sol_reviewer
+   - sol_advisor_astra_reviewer
 
    If a name is missing or unavailable, stop the affected lane and tell the user to
    install/check the companion files, start a fresh task, and update Codex if the name
@@ -81,7 +84,7 @@ Before every delegation, complete steps 1–2. After spawning a lane, complete s
    public details and the helper expose a value, they must agree.
 
    The accepted values remain Luna / max for routine implementation, Terra / max for
-   complex implementation, and Sol / high for review. If the selected role, model, or
+   complex implementation, and Astra / high for review. If the selected role, model, or
    effort is missing, inconsistent, unavailable, or unobservable after this procedure,
    stop that lane with an actionable error and do not accept its report as routed work.
    Never silently fall back to another model, effort, or agent type.
@@ -176,30 +179,30 @@ Treat worker reports as claims. Before accepting work:
 
 Do not call a task complete because a worker says it is complete.
 
-## Consult Sol at commitment boundaries
+## Consult Astra at commitment boundaries
 
 Before committing to a consequential architecture, migration, public API, or wide
 refactor, spawn a fresh custom review thread with a requested read-only profile:
 
 ~~~text
-agent_type: sol_advisor_sol_reviewer
+agent_type: sol_advisor_astra_reviewer
 fork_turns: none
 ~~~
 
 Use the commitment-boundary prompt from the role contracts. The installed agent file
-pins Sol at high reasoning and requests a read-only sandbox; do not add a per-spawn
+pins Astra at high reasoning and requests a read-only sandbox; do not add a per-spawn
 model or reasoning field. Observe the actual host sandbox and permission profile using
 the same public-details-first procedure. Keep the consult bounded; the primary session
 still makes the decision. If the mandatory preflight or runtime observation fails, stop
 the consult instead of using a different reviewer.
 
-## Require the final Sol review
+## Require the final Astra review
 
 After implementation and primary verification, always spawn a new, fresh native
 custom review thread with:
 
 ~~~text
-agent_type: sol_advisor_sol_reviewer
+agent_type: sol_advisor_astra_reviewer
 fork_turns: none
 ~~~
 
@@ -214,7 +217,7 @@ one verdict: ship, fix-first, or rethink.
 - rethink: return to architecture, revise the plan, and do not report completion.
 
 Never waive the final review because the change is small. Never let the reviewer
-implement its own fixes. A Sol-on-Sol review is context-clean, not
+implement its own fixes. An Astra-on-Astra review is context-clean, not
 model-family-independent; describe it that way when independence matters.
 
 Use the observed sandbox policy type to decide isolation status:

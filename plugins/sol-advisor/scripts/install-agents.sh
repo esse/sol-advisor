@@ -1,5 +1,6 @@
 #!/bin/sh
-# Install Sol Advisor's shipped custom-agent templates without changing Codex config.
+# Install Sol Advisor (Astra Advisor) shipped custom-agent templates without changing
+# Codex config.
 
 set -eu
 
@@ -7,9 +8,11 @@ usage() {
   cat <<'EOF'
 Usage: install-agents.sh [--target-dir <path>] [--check]
 
-Install the three Sol Advisor custom-agent templates into the target directory.
-Without --target-dir, the target is "$CODEX_HOME/agents" when CODEX_HOME is already
-set, otherwise "$HOME/.codex/agents". The script never overwrites a differing file.
+Install the three Sol Advisor (Astra Advisor) custom-agent templates into the target
+directory. Without --target-dir, the target is "$CODEX_HOME/agents" when CODEX_HOME is
+already set, otherwise "$HOME/.codex/agents". The script never overwrites a differing
+file. A role file shipped by an earlier version and superseded by this one is reported,
+never deleted.
 
 Options:
   --target-dir <path>  Explicit destination directory (absolute or relative).
@@ -69,7 +72,10 @@ esac
 
 [ "$target_dir" != "/" ] || fail "refusing to use the filesystem root as an agent target directory."
 
-agent_files='sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-sol-reviewer.toml'
+agent_files='sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-astra-reviewer.toml'
+# Role files shipped by an earlier version that this version no longer installs or
+# checks. They are user-owned, so they are reported and never deleted automatically.
+superseded_files='sol-advisor-sol-reviewer.toml'
 
 # Validate all shipped sources before looking at or mutating the destination.
 for agent_file in $agent_files; do
@@ -109,6 +115,14 @@ for agent_file in $agent_files; do
 done
 
 [ "$preflight_failed" -eq 0 ] || exit 1
+
+for superseded_file in $superseded_files; do
+  superseded_destination=$target_dir/$superseded_file
+  if [ -f "$superseded_destination" ] && [ ! -L "$superseded_destination" ]; then
+    printf '%s\n' "NOTICE: superseded role file is still installed and is no longer used: $superseded_destination"
+    printf '%s\n' "        Review now runs on sol_advisor_astra_reviewer. Delete the superseded file once no task needs it."
+  fi
+done
 
 if [ "$check_only" -eq 1 ]; then
   printf '%s\n' "CHECK PASSED: all Sol Advisor agent files exactly match $template_dir."

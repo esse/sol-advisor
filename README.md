@@ -1,7 +1,10 @@
 # Sol Advisor
 
-**Sol runs the show. Luna handles routine implementation, Terra takes the harder
-builds, and a fresh Sol review with a requested read-only profile stands between the
+*Also known as **Astra Advisor**. Both names refer to this plugin; the installed
+plugin id stays `sol-advisor`.*
+
+**Astra runs the show. Luna handles routine implementation, Terra takes the harder
+builds, and a fresh Astra review with a requested read-only profile stands between the
 diff and done.**
 
 Sol Advisor is a Codex-native architect workflow for capability-routed software
@@ -14,14 +17,18 @@ I write [**Attention Heads**](https://attentionheads.substack.com/?utm_source=gi
 
 | Lane | Native agent type | Pinned profile | Use it for |
 |---|---|---|---|
-| Orchestrator | Primary session | GPT-5.6 Sol / High | Requirements, architecture, decomposition, routing, and acceptance |
+| Advisor, planner, orchestrator | Primary session | GPT-6 Astra / High | Requirements, architecture, decomposition, routing, and acceptance |
 | Routine implementation | sol_advisor_luna_implementer | GPT-5.6 Luna / Max | Mechanical, repeatable, fully specified work |
 | Harder implementation | sol_advisor_terra_implementer | GPT-5.6 Terra / Max | Context-heavy, higher-risk, or wider-blast-radius work |
-| Final review | sol_advisor_sol_reviewer | GPT-5.6 Sol / High / requests read-only | Fresh review of the actual diff and verification evidence |
+| Final review | sol_advisor_astra_reviewer | GPT-6 Astra / High / requests read-only | Fresh review of the actual diff and verification evidence |
 
-The final review is context-independent, not model-family-independent: Sol reviews
-Sol's orchestration with a fresh context. That catches conversational assumptions, but
-it is not cross-vendor review.
+Astra reasoning effort accepts `low`, `medium`, `high`, `xhigh`, and `max`. The pinned
+review effort is `high`, which preserves the effective effort of the previous Sol
+reviewer as OpenAI's migration guidance recommends. Raise it only deliberately.
+
+The final review is context-independent, not model-family-independent: Astra reviews
+Astra's orchestration with a fresh context. That catches conversational assumptions,
+but it is not cross-vendor review.
 
 ## Install from GitHub
 
@@ -29,7 +36,7 @@ Requirements:
 
 - A current Codex CLI or ChatGPT desktop app with plugins, native subagents, and
   custom agents enabled.
-- Access to GPT-5.6 Sol, Terra, and Luna at the required reasoning levels.
+- Access to GPT-6 Astra and to GPT-5.6 Terra and Luna at the required reasoning levels.
 - jq, which the companion-install lookup uses to locate the installed plugin package.
 
 Add the GitHub repository as a Codex marketplace, then install the plugin:
@@ -61,14 +68,17 @@ missing template and then verifies every installed copy byte-for-byte.
 Start a **new Codex task** after the check passes. Native agent types are discovered at
 task creation, so an existing task may not see the installed roles.
 
-Then select GPT-5.6 Sol with High reasoning for the primary session and ask for
+Then select GPT-6 Astra with High reasoning for the primary session and ask for
 implementation work normally, or invoke the orchestration skill explicitly:
 
 ~~~text
-Use $sol-advisor:orchestration to build this feature, verify it, and obtain the final Sol review before reporting done.
+Use $sol-advisor:orchestration to build this feature, verify it, and obtain the final Astra review before reporting done.
 ~~~
 
-## Check and update
+"Sol Advisor" and "Astra Advisor" are interchangeable in prose; both route to the same
+skill.
+
+## Check a route before trusting it
 
 Run this check whenever a route must be trusted:
 
@@ -77,6 +87,29 @@ plugin_dir="$(codex plugin list --json | jq -r '.installed[] | select(.pluginId 
 test -d "$plugin_dir"
 sh "$plugin_dir/scripts/install-agents.sh" --check
 ~~~
+
+## Upgrade from a Sol-reviewer version
+
+Versions before 0.3.0 shipped `sol-advisor-sol-reviewer.toml`, pinning GPT-5.6 Sol as
+the reviewer. Version 0.3.0 replaces that lane with `sol-advisor-astra-reviewer.toml`
+(`sol_advisor_astra_reviewer`, GPT-6 Astra / High). The Luna and Terra templates are
+unchanged, byte-for-byte.
+
+Because the new reviewer is a new file rather than an edit of the old one, the normal
+update below installs it cleanly. The installer never rewrites or deletes the
+superseded user-owned file; it reports it once per run:
+
+~~~text
+NOTICE: superseded role file is still installed and is no longer used: .../sol-advisor-sol-reviewer.toml
+~~~
+
+`--check` still exits zero: the superseded file is no longer part of the checked set.
+Delete it yourself once no in-flight task still spawns `sol_advisor_sol_reviewer`, then
+start a fresh Codex task so the native spawn tool drops the stale role and picks up
+`sol_advisor_astra_reviewer`. Switch the primary session from Sol / High to Astra /
+High at the same time.
+
+## Update
 
 To update the marketplace plugin and then re-check its companion roles:
 
@@ -122,7 +155,7 @@ exist, they must agree.
 
 ## How routing works
 
-The Sol orchestrator writes a five-part spec for every implementation: objective, file
+The Astra orchestrator writes a five-part spec for every implementation: objective, file
 ownership, interfaces, constraints, and verification. Luna is the default producer.
 Terra is selected when judgment, context, or blast radius is materially higher, or
 when one Luna attempt demonstrates that the task was misclassified.
@@ -142,7 +175,7 @@ role/model/effort stops the affected lane with an actionable error. There is no 
 model, reasoning, or agent-type fallback, and per-spawn calls do not override the role
 pins.
 
-The Sol reviewer TOML requests read-only sandboxing, but the host permission profile
+The Astra reviewer TOML requests read-only sandboxing, but the host permission profile
 may broaden that request. If the observed sandbox policy type is read-only, review can
 proceed with enforced isolation. If the host broadens it, review can proceed only as
 behaviorally read-only when hard isolation is not required, the prompt forbids edits,
@@ -151,8 +184,8 @@ the broader sandbox and permission profile must be reported as residual risk. If
 isolation is required, the sandbox cannot be observed, or any mutation occurs, stop the
 review lane and do not claim enforced read-only isolation.
 
-The orchestrator inspects every diff and reruns verification. A fresh Sol reviewer then
-returns ship, fix-first, or rethink. The session cannot report completion until the
+The orchestrator inspects every diff and reruns verification. A fresh Astra reviewer
+then returns ship, fix-first, or rethink. The session cannot report completion until the
 reviewer returns ship. These remain native Codex subagent threads; Sol Advisor does not
 launch a nested Codex CLI process or globally reroute unrelated subagents.
 
