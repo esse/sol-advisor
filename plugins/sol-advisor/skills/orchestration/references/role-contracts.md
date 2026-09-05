@@ -1,9 +1,9 @@
 # Native Codex role contracts
 
-Use these contracts with Sol Advisor's namespaced, role-pinned native custom agents.
-They are not nested Codex CLI wrappers and they do not change global default-subagent
-routing. Load only the contract needed for the next spawn. Adapt every placeholder;
-do not remove a required field.
+Use these contracts with the namespaced, role-pinned native custom agents of Sol
+Advisor, also known as Astra Advisor. They are not nested Codex CLI wrappers and they
+do not change global default-subagent routing. Load only the contract needed for the
+next spawn. Adapt every placeholder; do not remove a required field.
 
 ## Required custom-agent preflight
 
@@ -20,9 +20,9 @@ Before every spawn, complete steps 1–2 of the preflight in SKILL.md; complete 
    native subagent thread id. Its allowlisted JSON is the authoritative local fallback
    for omitted model and effort. Public and local values must agree when both exist.
 4. Require exact role, model, and reasoning-effort observation before accepting the
-   selected lane. Always inspect and report the Sol reviewer's observed sandbox policy
-   type and permission profile type; the shipped TOML requests read-only but a host may
-   broaden it.
+   selected lane. Always inspect and report the Astra reviewer's observed sandbox
+   policy type and permission profile type; the shipped TOML requests read-only but a
+   host may broaden it.
 
 A missing, stale, conflicting, unavailable, inconsistent, or unobservable
 role/model/effort stops the affected lane. Report the actionable installer, local
@@ -133,21 +133,21 @@ If the exact template preflight, native type exposure, or runtime pin observatio
 fails, stop and report the limitation. Never silently fall back to another model or
 reasoning level.
 
-## Fresh Sol — requested-read-only final reviewer
+## Fresh Astra — requested-read-only final reviewer
 
 Spawn a new native custom review thread after implementation and primary-session
 verification, with exactly:
 
 ~~~text
-agent_type: sol_advisor_sol_reviewer
+agent_type: sol_advisor_astra_reviewer
 fork_turns: none
 ~~~
 
-The installed sol_advisor_sol_reviewer file pins GPT-5.6 Sol at high reasoning and
+The installed sol_advisor_astra_reviewer file pins GPT-6 Astra at high reasoning and
 requests a read-only sandbox. Do not attach a per-spawn model or reasoning field.
-Require public-details-first observation of the Sol/high pin, using the local inspector
-only if public details omit model or effort. Also capture the observed sandbox policy
-type and permission profile type; the requested profile does not prove host-enforced
+Require public-details-first observation of the Astra/high pin, using the local
+inspector only if public details omit model or effort. Also capture the observed
+sandbox policy type and permission profile type; the requested profile does not prove host-enforced
 read-only isolation.
 
 Prompt:
@@ -175,7 +175,7 @@ Inspect the actual files and accumulated change set. Judge correctness, complete
 regressions, scope discipline, interface preservation, test adequacy, and material risk.
 Return exactly one allowed verdict: ship, fix-first, or rethink.
 
-SOL REVIEW
+ASTRA REVIEW
 VERDICT: ship | fix-first | rethink
 REASON: <decisive evidence-based reason>
 FINDINGS: <precise file references and required fixes, or none>
@@ -190,7 +190,7 @@ set and verification evidence.
 
 If the exact template preflight, native type exposure, or required role/model/effort
 observation fails, stop and report the limitation. Never silently fall back to another
-model or reasoning level. Sol reviewing Sol is context-clean, but it is not
+model or reasoning level. Astra reviewing Astra is context-clean, but it is not
 cross-model-family independence.
 
 Apply the observed sandbox policy, not the requested TOML value, to review acceptance:
@@ -203,13 +203,13 @@ Apply the observed sandbox policy, not the requested TOML value, to review accep
 - If hard isolation is required, the sandbox cannot be observed, or any mutation
   occurs, stop the lane. Do not claim enforced read-only isolation.
 
-## Commitment-boundary Sol consult
+## Commitment-boundary Astra consult
 
 For a pre-implementation consult, use a fresh native custom review thread with a
 requested read-only profile, exactly:
 
 ~~~text
-agent_type: sol_advisor_sol_reviewer
+agent_type: sol_advisor_astra_reviewer
 fork_turns: none
 ~~~
 

@@ -13,7 +13,7 @@ fail() {
 }
 
 hash_agents() {
-  shasum -a 256 "$1/sol-advisor-luna-implementer.toml" "$1/sol-advisor-terra-implementer.toml" "$1/sol-advisor-sol-reviewer.toml" | shasum -a 256 | awk '{print $1}'
+  shasum -a 256 "$1/sol-advisor-luna-implementer.toml" "$1/sol-advisor-terra-implementer.toml" "$1/sol-advisor-astra-reviewer.toml" | shasum -a 256 | awk '{print $1}'
 }
 
 script_dir=$(CDPATH= cd "$(dirname "$0")" && pwd) || exit 1
@@ -83,9 +83,9 @@ expected = {
         "model": "gpt-5.6-terra",
         "model_reasoning_effort": "max",
     },
-    "sol-advisor-sol-reviewer.toml": {
-        "name": "sol_advisor_sol_reviewer",
-        "model": "gpt-5.6-sol",
+    "sol-advisor-astra-reviewer.toml": {
+        "name": "sol_advisor_astra_reviewer",
+        "model": "gpt-6-astra",
         "model_reasoning_effort": "high",
         "sandbox_mode": "read-only",
     },
@@ -110,7 +110,7 @@ pass "custom-agent TOML validity and exact role pins"
 
 clean_target=$tmp_dir/clean-install
 sh "$installer" --target-dir "$clean_target"
-for agent_file in sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-sol-reviewer.toml; do
+for agent_file in sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-astra-reviewer.toml; do
   cmp -s "$templates/$agent_file" "$clean_target/$agent_file" || fail "clean install is not byte-for-byte exact: $agent_file"
 done
 pass "installer clean install and byte-for-byte final copies"
@@ -124,7 +124,7 @@ pass "installer --check refuses missing files without mutation"
 
 codex_home_target=$tmp_dir/codex-home
 CODEX_HOME="$codex_home_target" sh "$installer"
-for agent_file in sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-sol-reviewer.toml; do
+for agent_file in sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-astra-reviewer.toml; do
   cmp -s "$templates/$agent_file" "$codex_home_target/agents/$agent_file" || fail "CODEX_HOME target is not byte-for-byte exact: $agent_file"
 done
 test ! -e "$codex_home_target/config.toml" || fail "installer unexpectedly created config.toml"
@@ -136,7 +136,7 @@ mkdir "$relative_parent"
   cd "$relative_parent"
   sh "$installer" --target-dir explicit-agents
 )
-for agent_file in sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-sol-reviewer.toml; do
+for agent_file in sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-astra-reviewer.toml; do
   cmp -s "$templates/$agent_file" "$relative_parent/explicit-agents/$agent_file" || fail "explicit relative target is not byte-for-byte exact: $agent_file"
 done
 pass "installer accepts an explicit relative target directory"
@@ -153,6 +153,21 @@ after_check=$(hash_agents "$clean_target")
 [ "$before_check" = "$after_check" ] || fail "--check altered an installed template"
 pass "installer --check"
 
+upgrade_target=$tmp_dir/upgrade-from-sol
+mkdir "$upgrade_target"
+printf '%s\n' 'name = "sol_advisor_sol_reviewer"' 'model = "gpt-5.6-sol"' > "$upgrade_target/sol-advisor-sol-reviewer.toml"
+legacy_before=$(shasum -a 256 "$upgrade_target/sol-advisor-sol-reviewer.toml" | awk '{print $1}')
+upgrade_output=$(sh "$installer" --target-dir "$upgrade_target")
+printf '%s\n' "$upgrade_output" | grep -Fq 'NOTICE: superseded role file is still installed' || fail "upgrade did not report the superseded Sol reviewer file"
+for agent_file in sol-advisor-luna-implementer.toml sol-advisor-terra-implementer.toml sol-advisor-astra-reviewer.toml; do
+  cmp -s "$templates/$agent_file" "$upgrade_target/$agent_file" || fail "upgrade install is not byte-for-byte exact: $agent_file"
+done
+legacy_after=$(shasum -a 256 "$upgrade_target/sol-advisor-sol-reviewer.toml" | awk '{print $1}')
+[ "$legacy_before" = "$legacy_after" ] || fail "upgrade modified the user-owned superseded role file"
+upgrade_check_output=$(sh "$installer" --target-dir "$upgrade_target" --check)
+printf '%s\n' "$upgrade_check_output" | grep -Fq 'NOTICE: superseded role file is still installed' || fail "--check did not report the superseded Sol reviewer file"
+pass "installer upgrade path from the superseded Sol reviewer"
+
 conflict_target=$tmp_dir/conflict
 mkdir "$conflict_target"
 printf '%s\n' 'intentionally conflicting custom-agent template' > "$conflict_target/sol-advisor-luna-implementer.toml"
@@ -160,7 +175,7 @@ if sh "$installer" --target-dir "$conflict_target"; then
   fail "installer accepted a differing destination file"
 fi
 test ! -e "$conflict_target/sol-advisor-terra-implementer.toml" || fail "conflict refusal partially installed the Terra template"
-test ! -e "$conflict_target/sol-advisor-sol-reviewer.toml" || fail "conflict refusal partially installed the Sol template"
+test ! -e "$conflict_target/sol-advisor-astra-reviewer.toml" || fail "conflict refusal partially installed the Astra template"
 pass "installer conflict refusal without partial mutation"
 
 runtime_sessions=$tmp_dir/runtime-sessions
@@ -232,7 +247,7 @@ pass "runtime inspector multiple-match refusal"
 for document in "$skill" "$contracts"; do
   grep -Fq 'agent_type: sol_advisor_luna_implementer' "$document" || fail "missing Luna custom agent reference: $document"
   grep -Fq 'agent_type: sol_advisor_terra_implementer' "$document" || fail "missing Terra custom agent reference: $document"
-  grep -Fq 'agent_type: sol_advisor_sol_reviewer' "$document" || fail "missing Sol custom agent reference: $document"
+  grep -Fq 'agent_type: sol_advisor_astra_reviewer' "$document" || fail "missing Astra custom agent reference: $document"
   grep -Fq 'fork_turns: none' "$document" || fail "missing fresh-context spawn requirement: $document"
   if grep -Eq '^[[:space:]]*(model|reasoning_effort):' "$document"; then
     fail "per-spawn model or reasoning override remains in: $document"
