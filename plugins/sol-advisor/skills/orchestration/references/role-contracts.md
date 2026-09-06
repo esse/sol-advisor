@@ -143,9 +143,9 @@ agent_type: sol_advisor_astra_reviewer
 fork_turns: none
 ~~~
 
-The installed sol_advisor_astra_reviewer file pins GPT-6 Astra at high reasoning and
+The installed sol_advisor_astra_reviewer file pins GPT-6 Astra at medium reasoning and
 requests a read-only sandbox. Do not attach a per-spawn model or reasoning field.
-Require public-details-first observation of the Astra/high pin, using the local
+Require public-details-first observation of the Astra/medium pin, using the local
 inspector only if public details omit model or effort. Also capture the observed
 sandbox policy type and permission profile type; the requested profile does not prove host-enforced
 read-only isolation.
