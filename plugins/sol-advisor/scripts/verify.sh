@@ -86,7 +86,7 @@ expected = {
     "sol-advisor-astra-reviewer.toml": {
         "name": "sol_advisor_astra_reviewer",
         "model": "gpt-6-astra",
-        "model_reasoning_effort": "high",
+        "model_reasoning_effort": "medium",
         "sandbox_mode": "read-only",
     },
 }

@@ -1,6 +1,6 @@
 {
   "name": "sol-advisor",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Codex-native architect workflow that routes through separately installed, role-pinned Luna and Terra custom agents and requires a fresh read-only Astra review.",
   "author": {
     "name": "Daniel McAteer",

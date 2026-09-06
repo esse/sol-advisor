@@ -1,6 +1,6 @@
 ---
 name: orchestration
-description: "Codex-native architect and delegation workflow for Sol Advisor, also known as Astra Advisor, that uses separately installed, role-pinned custom agents: GPT-5.6 Luna at max reasoning for routine implementation, GPT-5.6 Terra at max reasoning for harder implementation, and a fresh GPT-6 Astra reviewer at high reasoning with a requested read-only profile. Use for delegated implementation, multi-task builds, feature work, bug fixes, refactors, lane selection, five-part implementation specs, verification of subagent work, commitment-boundary advice, or any deliverable that must receive a final independent-context Astra review before completion."
+description: "Codex-native architect and delegation workflow for Sol Advisor, also known as Astra Advisor, that uses separately installed, role-pinned custom agents: GPT-5.6 Luna at max reasoning for routine implementation, GPT-5.6 Terra at max reasoning for harder implementation, and a fresh GPT-6 Astra reviewer at medium reasoning with a requested read-only profile. Use for delegated implementation, multi-task builds, feature work, bug fixes, refactors, lane selection, five-part implementation specs, verification of subagent work, commitment-boundary advice, or any deliverable that must receive a final independent-context Astra review before completion."
 ---
 
 # Sol Advisor Orchestration
@@ -20,10 +20,10 @@ review packet.
 
 ## Confirm the primary session
 
-Run the primary Codex session on gpt-6-astra with high reasoning. Verify the current
+Run the primary Codex session on gpt-6-astra with medium reasoning. Verify the current
 model and effort when the runtime exposes them. If either setting differs, tell the
-user how to select Astra / High and stop before delegation. If the runtime does not
-expose the settings, ask the user to confirm that Astra / High is selected and stop
+user how to select Astra / Medium and stop before delegation. If the runtime does not
+expose the settings, ask the user to confirm that Astra / Medium is selected and stop
 until they confirm. A skill cannot change the primary session's model itself; never
 assume or claim that this prerequisite is satisfied.
 
@@ -84,8 +84,8 @@ Before every delegation, complete steps 1–2. After spawning a lane, complete s
    public details and the helper expose a value, they must agree.
 
    The accepted values remain Luna / max for routine implementation, Terra / max for
-   complex implementation, and Astra / high for review. If the selected role, model, or
-   effort is missing, inconsistent, unavailable, or unobservable after this procedure,
+   complex implementation, and Astra / medium for review. If the selected role, model,
+   or effort is missing, inconsistent, unavailable, or unobservable after this procedure,
    stop that lane with an actionable error and do not accept its report as routed work.
    Never silently fall back to another model, effort, or agent type.
 
@@ -190,7 +190,7 @@ fork_turns: none
 ~~~
 
 Use the commitment-boundary prompt from the role contracts. The installed agent file
-pins Astra at high reasoning and requests a read-only sandbox; do not add a per-spawn
+pins Astra at medium reasoning and requests a read-only sandbox; do not add a per-spawn
 model or reasoning field. Observe the actual host sandbox and permission profile using
 the same public-details-first procedure. Keep the consult bounded; the primary session
 still makes the decision. If the mandatory preflight or runtime observation fails, stop

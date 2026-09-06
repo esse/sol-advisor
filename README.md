@@ -17,14 +17,16 @@ I write [**Attention Heads**](https://attentionheads.substack.com/?utm_source=gi
 
 | Lane | Native agent type | Pinned profile | Use it for |
 |---|---|---|---|
-| Advisor, planner, orchestrator | Primary session | GPT-6 Astra / High | Requirements, architecture, decomposition, routing, and acceptance |
+| Advisor, planner, orchestrator | Primary session | GPT-6 Astra / Medium | Requirements, architecture, decomposition, routing, and acceptance |
 | Routine implementation | sol_advisor_luna_implementer | GPT-5.6 Luna / Max | Mechanical, repeatable, fully specified work |
 | Harder implementation | sol_advisor_terra_implementer | GPT-5.6 Terra / Max | Context-heavy, higher-risk, or wider-blast-radius work |
-| Final review | sol_advisor_astra_reviewer | GPT-6 Astra / High / requests read-only | Fresh review of the actual diff and verification evidence |
+| Final review | sol_advisor_astra_reviewer | GPT-6 Astra / Medium / requests read-only | Fresh review of the actual diff and verification evidence |
 
-Astra reasoning effort accepts `low`, `medium`, `high`, `xhigh`, and `max`. The pinned
-review effort is `high`, which preserves the effective effort of the previous Sol
-reviewer as OpenAI's migration guidance recommends. Raise it only deliberately.
+Astra reasoning effort accepts `low`, `medium`, `high`, `xhigh`, and `max`. The reviewer
+is pinned to `medium` and the primary session should run at Medium too — the
+recommended starting point when moving off Sol, cheaper and faster than Sol at High
+while still reviewing well. Raise either to `high` or above only deliberately, for work whose
+correctness turns on crossing retries, ownership, and persisted state.
 
 The final review is context-independent, not model-family-independent: Astra reviews
 Astra's orchestration with a fresh context. That catches conversational assumptions,
@@ -68,7 +70,7 @@ missing template and then verifies every installed copy byte-for-byte.
 Start a **new Codex task** after the check passes. Native agent types are discovered at
 task creation, so an existing task may not see the installed roles.
 
-Then select GPT-6 Astra with High reasoning for the primary session and ask for
+Then select GPT-6 Astra with Medium reasoning for the primary session and ask for
 implementation work normally, or invoke the orchestration skill explicitly:
 
 ~~~text
@@ -92,7 +94,7 @@ sh "$plugin_dir/scripts/install-agents.sh" --check
 
 Versions before 0.3.0 shipped `sol-advisor-sol-reviewer.toml`, pinning GPT-5.6 Sol as
 the reviewer. Version 0.3.0 replaces that lane with `sol-advisor-astra-reviewer.toml`
-(`sol_advisor_astra_reviewer`, GPT-6 Astra / High). The Luna and Terra templates are
+(`sol_advisor_astra_reviewer`, GPT-6 Astra / Medium). The Luna and Terra templates are
 unchanged, byte-for-byte.
 
 Because the new reviewer is a new file rather than an edit of the old one, the normal
@@ -107,7 +109,22 @@ NOTICE: superseded role file is still installed and is no longer used: .../sol-a
 Delete it yourself once no in-flight task still spawns `sol_advisor_sol_reviewer`, then
 start a fresh Codex task so the native spawn tool drops the stale role and picks up
 `sol_advisor_astra_reviewer`. Switch the primary session from Sol / High to Astra /
-High at the same time.
+Medium at the same time.
+
+### 0.3.0 to 0.4.0: the reviewer effort changed in place
+
+Version 0.3.0 pinned the Astra reviewer to `high`; 0.4.0 pins it to `medium`. Same
+filename, different contents, so the installer reports a conflict rather than
+overwriting your copy:
+
+~~~text
+ERROR: destination differs from the shipped template and will not be overwritten: .../sol-advisor-astra-reviewer.toml
+~~~
+
+That is the intended behavior for a changed role pin. Compare the installed file with
+the shipped template, delete the installed copy once you are satisfied, rerun the
+installer and its `--check`, and start a fresh Codex task. Keep your own copy instead
+if you deliberately want `high`; the check will keep failing until the two agree.
 
 ## Update
 

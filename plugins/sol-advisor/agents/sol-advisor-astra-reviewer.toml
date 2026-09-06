@@ -1,7 +1,7 @@
 name = "sol_advisor_astra_reviewer"
 description = "Sol Advisor's fresh, read-only final review lane for inspected diffs and evidence."
 model = "gpt-6-astra"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 
 developer_instructions = """
